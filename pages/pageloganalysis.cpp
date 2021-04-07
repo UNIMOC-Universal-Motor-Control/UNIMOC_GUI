@@ -43,9 +43,7 @@ PageLogAnalysis::PageLogAnalysis(QWidget *parent) :
     ui->statSplitter->setStretchFactor(0, 6);
     ui->statSplitter->setStretchFactor(1, 1);
 
-    ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
-    ui->plot->axisRect()->setRangeZoom(nullptr);
-    ui->plot->axisRect()->setRangeDrag(nullptr);
+    ui->plot->setInteractions(QCP::iNone);
 
     ui->dataTable->setColumnWidth(0, 140);
     ui->dataTable->setColumnWidth(1, 120);
@@ -174,15 +172,15 @@ PageLogAnalysis::PageLogAnalysis(QWidget *parent) :
 
     auto updateMouse = [this](QMouseEvent *event) {
         if (event->modifiers() == Qt::ShiftModifier) {
+            ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
             ui->plot->axisRect()->setRangeZoom(Qt::Vertical);
             ui->plot->axisRect()->setRangeDrag(Qt::Vertical);
         } else {
-            ui->plot->axisRect()->setRangeZoom(nullptr);
-            ui->plot->axisRect()->setRangeDrag(nullptr);
+            ui->plot->setInteractions(QCP::iNone);
         }
 
         if (event->buttons() & Qt::LeftButton) {
-            double vx = ui->plot->xAxis->pixelToCoord(event->x());
+            double vx = ui->plot->xAxis->pixelToCoord(event->position().x());
             updateDataAndPlot(vx);
         }
     };
@@ -201,15 +199,15 @@ PageLogAnalysis::PageLogAnalysis(QWidget *parent) :
 
     connect(ui->plot, &QCustomPlot::mouseWheel, [this](QWheelEvent *event) {
         if (event->modifiers() == Qt::ShiftModifier) {
+            ui->plot->setInteractions(QCP::iRangeDrag | QCP::iRangeZoom);
             ui->plot->axisRect()->setRangeZoom(Qt::Vertical);
             ui->plot->axisRect()->setRangeDrag(Qt::Vertical);
         } else {
-            ui->plot->axisRect()->setRangeZoom(nullptr);
-            ui->plot->axisRect()->setRangeDrag(nullptr);
+            ui->plot->setInteractions(QCP::iNone);
 
             double upper = ui->plot->xAxis->range().upper;
-            double progress = ui->plot->xAxis->pixelToCoord(event->x()) / upper;
-            double diff = event->delta();
+            double progress = ui->plot->xAxis->pixelToCoord(event->position().x()) / upper;
+            double diff = event->pixelDelta().x();
             double d1 = diff * progress;
             double d2 = diff * (1.0 - progress);
 
@@ -372,7 +370,7 @@ void PageLogAnalysis::truncateDataAndPlot(bool zoomGraph)
             p.setXY(xyz[0], xyz[1]);
             p.setRadius(5);
             QString info;
-            info.sprintf("%d", d.valTime);
+            info.asprintf("%d", d.valTime);
             p.setInfo(info);
 
             ui->map->addInfoPoint(p, false);

@@ -23,7 +23,7 @@
 #include <QApplication>
 #include <QStyleFactory>
 #include <QSettings>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QFontDatabase>
 
 #ifdef Q_OS_LINUX
@@ -50,14 +50,9 @@ static void m_cleanup(int sig)
 int main(int argc, char *argv[])
 {
     // Settings
-    QCoreApplication::setOrganizationName("VESC");
-    QCoreApplication::setOrganizationDomain("vesc-project.com");
-    QCoreApplication::setApplicationName("VESC Tool");
-
-    // DPI settings
-    // TODO: http://www.qcustomplot.com/index.php/support/forum/1344
-
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+    QCoreApplication::setOrganizationName("UNIMOC");
+    QCoreApplication::setOrganizationDomain("https://github.com/UNIMOC-Universal-Motor-Control");
+    QCoreApplication::setApplicationName("UNIMOC GUI");
 
 #ifdef USE_MOBILE
 #ifndef DEBUG_BUILD
@@ -135,7 +130,8 @@ int main(int argc, char *argv[])
 
     if (scaleAuto) {
         QApplication tmp(argc, argv);
-        QRect rec = tmp.desktop()->screenGeometry();
+        QScreen *screen = QGuiApplication::primaryScreen();
+        QRect rec = screen->geometry();
         int height = rec.height();
         int width = rec.width();
         double ptFont = tmp.font().pointSizeF();

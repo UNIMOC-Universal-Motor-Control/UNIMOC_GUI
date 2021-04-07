@@ -38,11 +38,12 @@
 #include <QPlainTextEdit>
 #include <QMenu>
 #include <QDialog>
+#include <QRegularExpression>
 
 MRichTextEdit::MRichTextEdit(QWidget *parent) : QWidget(parent) {
     setupUi(this);
     m_lastBlockList = 0;
-    f_textedit->setTabStopWidth(40);
+    f_textedit->setTabStopDistance(40);
 
     connect(f_textedit, SIGNAL(currentCharFormatChanged(QTextCharFormat)),
             this, SLOT(slotCurrentCharFormatChanged(QTextCharFormat)));
@@ -109,15 +110,15 @@ MRichTextEdit::MRichTextEdit(QWidget *parent) : QWidget(parent) {
 
     // link
 
-    f_link->setShortcut(Qt::CTRL + Qt::Key_L);
+    f_link->setShortcut(Qt::CTRL | Qt::Key_L);
 
     connect(f_link, SIGNAL(clicked(bool)), this, SLOT(textLink(bool)));
 
     // bold, italic & underline
 
-    f_bold->setShortcut(Qt::CTRL + Qt::Key_B);
-    f_italic->setShortcut(Qt::CTRL + Qt::Key_I);
-    f_underline->setShortcut(Qt::CTRL + Qt::Key_U);
+    f_bold->setShortcut(Qt::CTRL | Qt::Key_B);
+    f_italic->setShortcut(Qt::CTRL | Qt::Key_I);
+    f_underline->setShortcut(Qt::CTRL | Qt::Key_U);
 
     connect(f_bold, SIGNAL(clicked()), this, SLOT(textBold()));
     connect(f_italic, SIGNAL(clicked()), this, SLOT(textItalic()));
@@ -154,24 +155,22 @@ MRichTextEdit::MRichTextEdit(QWidget *parent) : QWidget(parent) {
 
     // lists
 
-    f_list_bullet->setShortcut(Qt::CTRL + Qt::Key_Minus);
-    f_list_ordered->setShortcut(Qt::CTRL + Qt::Key_Equal);
+    f_list_bullet->setShortcut(Qt::CTRL | Qt::Key_Minus);
+    f_list_ordered->setShortcut(Qt::CTRL | Qt::Key_Equal);
 
     connect(f_list_bullet, SIGNAL(clicked(bool)), this, SLOT(listBullet(bool)));
     connect(f_list_ordered, SIGNAL(clicked(bool)), this, SLOT(listOrdered(bool)));
 
     // indentation
 
-    f_indent_dec->setShortcut(Qt::CTRL + Qt::Key_Comma);
-    f_indent_inc->setShortcut(Qt::CTRL + Qt::Key_Period);
+    f_indent_dec->setShortcut(Qt::CTRL | Qt::Key_Comma);
+    f_indent_inc->setShortcut(Qt::CTRL | Qt::Key_Period);
 
     connect(f_indent_inc, SIGNAL(clicked()), this, SLOT(increaseIndentation()));
     connect(f_indent_dec, SIGNAL(clicked()), this, SLOT(decreaseIndentation()));
 
     // font size
-
-    QFontDatabase db;
-    foreach(int size, db.standardSizes())
+    foreach(int size, QFontDatabase::standardSizes())
         f_fontsize->addItem(QString::number(size));
 
     connect(f_fontsize, SIGNAL(activated(QString)),
@@ -182,12 +181,12 @@ MRichTextEdit::MRichTextEdit(QWidget *parent) : QWidget(parent) {
     // text color
 
     QPixmap pix(16, 16);
-    pix.fill(QApplication::palette().background().color());
+    pix.fill(QApplication::palette().color(QPalette::Window));
     f_bgcolor->setIcon(pix);
     connect(f_bgcolor, SIGNAL(clicked()), this, SLOT(textBgColor()));
 
     QPixmap pix2(16, 16);
-    pix2.fill(QApplication::palette().foreground().color());
+    pix2.fill(QApplication::palette().color(QPalette::WindowText));
     f_fgcolor->setIcon(pix2);
     connect(f_fgcolor, SIGNAL(clicked()), this, SLOT(textFgColor()));
 
@@ -615,7 +614,7 @@ void MRichTextEdit::bgColorChanged(const QColor &c) {
     if (c.isValid()) {
         pix.fill(c);
     } else {
-        pix.fill(QApplication::palette().background().color());
+        pix.fill(QApplication::palette().color(QPalette::Window));
     }
     f_bgcolor->setIcon(pix);
 }
@@ -626,7 +625,7 @@ void MRichTextEdit::fgColorChanged(const QColor &c)
     if (c.isValid()) {
         pix.fill(c);
     } else {
-        pix.fill(QApplication::palette().foreground().color());
+        pix.fill(QApplication::palette().color(QPalette::WindowText));
     }
     f_fgcolor->setIcon(pix);
 }
@@ -648,9 +647,9 @@ void MRichTextEdit::slotClipboardDataChanged() {
 QString MRichTextEdit::toHtml() const {
     QString s = f_textedit->toHtml();
     // convert emails to links
-    s = s.replace(QRegExp("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)([a-zA-Z\\d]+@[a-zA-Z\\d]+\\.[a-zA-Z]+)"), "\\1<a href=\"mailto:\\2\">\\2</a>");
+    s = s.replace(QRegularExpression("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)([a-zA-Z\\d]+@[a-zA-Z\\d]+\\.[a-zA-Z]+)"), "\\1<a href=\"mailto:\\2\">\\2</a>");
     // convert links
-    s = s.replace(QRegExp("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)((?:https?|ftp|file)://[^\\s'\"<>]+)"), "\\1<a href=\"\\2\">\\2</a>");
+    s = s.replace(QRegularExpression("(<[^a][^>]+>(?:<span[^>]+>)?|\\s)((?:https?|ftp|file)://[^\\s'\"<>]+)"), "\\1<a href=\"\\2\">\\2</a>");
     return s;
 }
 

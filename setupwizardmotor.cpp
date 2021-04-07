@@ -550,7 +550,7 @@ void BldcPage::initializePage()
         mParamTab->addParamRow(mVesc->mcConfig(), "hall_sl_erpm");
         for (int i = 0;i < 8;i++) {
             QString str;
-            str.sprintf("hall_table_%d", i);
+            str.asprintf("hall_table_%d", i);
             mParamTab->addParamRow(mVesc->mcConfig(), str);
         }
     }

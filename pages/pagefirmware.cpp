@@ -143,7 +143,7 @@ void PageFirmware::fwRxChanged(bool rx, bool limited)
     }
 
     if (params.major >= 0) {
-        fwStr.sprintf("Fw: %d.%d", params.major, params.minor);
+        fwStr.asprintf("Fw: %d.%d", params.major, params.minor);
         if (!params.hw.isEmpty()) {
             fwStr += ", Hw: " + params.hw;
         }

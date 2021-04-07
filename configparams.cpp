@@ -1015,7 +1015,7 @@ bool ConfigParams::saveXml(QString fileName, QString configName)
     emit savingXml();
 
     QXmlStreamWriter stream(&file);
-    stream.setCodec("UTF-8");
+//    stream.setCodec("UTF-8");
     stream.setAutoFormatting(true);
     getXML(stream, configName);
 
@@ -1052,7 +1052,7 @@ QString ConfigParams::saveCompressed(QString configName)
 
     QByteArray data;
     QXmlStreamWriter stream(&data);
-    stream.setCodec("UTF-8");
+//    stream.setCodec("UTF-8");
     stream.setAutoFormatting(true);
     getXML(stream, configName);
 
@@ -1354,7 +1354,7 @@ bool ConfigParams::saveParamsXml(QString fileName)
     }
 
     QXmlStreamWriter stream(&file);
-    stream.setCodec("UTF-8");
+//    stream.setCodec("UTF-8");
     stream.setAutoFormatting(true);
 
     getParamsXML(stream);
@@ -1386,7 +1386,7 @@ QByteArray ConfigParams::getCompressedParamsXml()
 {
     QByteArray res;
     QXmlStreamWriter stream(&res);
-    stream.setCodec("UTF-8");
+//    stream.setCodec("UTF-8");
     stream.setAutoFormatting(true);
     getParamsXML(stream);
     return qCompress(res, 9);
@@ -1714,7 +1714,7 @@ bool ConfigParams::moveGroupUp(QString group)
     for (int i = 0;i < mParamGrouping.size();i++) {
         if (mParamGrouping.at(i).first.toLower() == group.toLower()) {
             if (i > 0) {
-                mParamGrouping.swap(i, i - 1);
+                mParamGrouping[i].swap(mParamGrouping[i - 1]);
                 return true;
             } else {
                 return false;
@@ -1729,7 +1729,7 @@ bool ConfigParams::moveGroupDown(QString group)
     for (int i = 0;i < mParamGrouping.size();i++) {
         if (mParamGrouping.at(i).first.toLower() == group.toLower()) {
             if (i < (mParamGrouping.size() - 1)) {
-                mParamGrouping.swap(i, i + 1);
+                mParamGrouping[i].swap(mParamGrouping[i + 1]);
                 return true;
             } else {
                 return false;
@@ -1746,7 +1746,7 @@ bool ConfigParams::moveSubgroupUp(QString group, QString subgroup)
             for (int j = 0;j < mParamGrouping.at(i).second.size();j++) {
                 if (mParamGrouping.at(i).second.at(j).first.toLower() == subgroup.toLower()) {
                     if (j > 0) {
-                        mParamGrouping[i].second.swap(j, j - 1);
+                        mParamGrouping[i].second[j].swap(mParamGrouping[i].second[j - 1]);
                         return true;
                     } else {
                         return false;
@@ -1765,7 +1765,7 @@ bool ConfigParams::moveSubgroupDown(QString group, QString subgroup)
             for (int j = 0;j < mParamGrouping.at(i).second.size();j++) {
                 if (mParamGrouping.at(i).second.at(j).first.toLower() == subgroup.toLower()) {
                     if (j < (mParamGrouping.at(i).second.size() - 1)) {
-                        mParamGrouping[i].second.swap(j, j + 1);
+                        mParamGrouping[i].second[j].swap(mParamGrouping[i].second[j + 1]);
                         return true;
                     } else {
                         return false;
@@ -1786,7 +1786,7 @@ bool ConfigParams::moveSubgroupParamUp(QString group, QString subgroup, QString 
                     for (int k = 0;k < mParamGrouping.at(i).second.at(j).second.size();k++) {
                         if (mParamGrouping.at(i).second.at(j).second.at(k).toLower() == param.toLower()) {
                             if (k > 0) {
-                                mParamGrouping[i].second[j].second.swap(k, k - 1);
+                                mParamGrouping[i].second[j].second[k].swap(mParamGrouping[i].second[j].second[k - 1]);
                                 return true;
                             } else {
                                 return false;
@@ -1809,7 +1809,7 @@ bool ConfigParams::moveSubgroupParamDown(QString group, QString subgroup, QStrin
                     for (int k = 0;k < mParamGrouping.at(i).second.at(j).second.size();k++) {
                         if (mParamGrouping.at(i).second.at(j).second.at(k).toLower() == param.toLower()) {
                             if (k < (mParamGrouping.at(i).second.at(j).second.size() - 1)) {
-                                mParamGrouping[i].second[j].second.swap(k, k + 1);
+                                mParamGrouping[i].second[j].second[k].swap(mParamGrouping[i].second[j].second[k + 1]);
                                 return true;
                             } else {
                                 return false;

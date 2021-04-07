@@ -27,8 +27,7 @@ vt_test_version: {
     DEFINES += VT_IS_TEST_VERSION=1
 }
 
-CONFIG += c++11
-QMAKE_CXXFLAGS += -Wno-deprecated-copy
+CONFIG += c++17
 
 # Build mobile GUI
 #CONFIG += build_mobile
@@ -44,19 +43,19 @@ QMAKE_CXXFLAGS += -Wno-deprecated-copy
 # sudo service bluetooth restart
 
 # Bluetooth available
-DEFINES += HAS_BLUETOOTH
+#DEFINES += HAS_BLUETOOTH
 
 # CAN bus available
 # Adding serialbus to Qt seems to break the serial port on static builds. TODO: Figure out why.
 #DEFINES += HAS_CANBUS
 
 # Positioning
-DEFINES += HAS_POS
+#DEFINES += HAS_POS
 
 !android: {
     # Serial port available
-    DEFINES += HAS_SERIALPORT
-    DEFINES += HAS_GAMEPAD
+#    DEFINES += HAS_SERIALPORT
+#    DEFINES += HAS_GAMEPAD
 }
 win32: {
     DEFINES += _USE_MATH_DEFINES
@@ -70,12 +69,14 @@ win32: {
 #CONFIG += build_bronze
 #CONFIG += build_free
 
-QT       += core gui
+QT       += gui
+QT       += core
 QT       += widgets
 QT       += printsupport
 QT       += network
 QT       += quick
 QT       += quickcontrols2
+QT       += openglwidgets
 
 contains(DEFINES, HAS_SERIALPORT) {
     QT       += serialport

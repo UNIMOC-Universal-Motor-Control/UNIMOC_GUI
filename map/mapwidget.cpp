@@ -967,17 +967,21 @@ bool MapWidget::event(QEvent *event)
                            QPointF(0, 0),
                            QPoint(0, 0),
                            QPoint(0, 120),
-                           0, Qt::Vertical, nullptr,
-                           ke->modifiers());
+                           Qt::NoButton,
+                           ke->modifiers(),
+                           Qt::ScrollUpdate,
+                           false);
             wheelEvent(&we);
             return true;
         } else if (ke->key() == Qt::Key_Down) {
             QWheelEvent we(QPointF(0, 0),
                            QPointF(0, 0),
                            QPoint(0, 0),
-                           QPoint(0, -120),
-                           0, Qt::Vertical, nullptr,
-                           ke->modifiers());
+                           QPoint(0, 120),
+                           Qt::NoButton,
+                           ke->modifiers(),
+                           Qt::ScrollUpdate,
+                           true);
             wheelEvent(&we);
             return true;
         }
@@ -1176,7 +1180,7 @@ void MapWidget::printPdf(QString path, int width, int height)
     printer.setPageLayout(pageLayout);
 
     QPainter painter(&printer);
-    paint(painter, printer.pageRect().width(), printer.pageRect().height(), true);
+    paint(painter, printer.pageRect(QPrinter::Point).width(), printer.pageRect(QPrinter::Point).height(), true);
 }
 
 void MapWidget::printPng(QString path, int width, int height)
@@ -1685,7 +1689,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
     const QColor zeroAxisColor = Qt::red;
     const QColor firstAxisColor = Qt::gray;
     const QColor secondAxisColor = Qt::blue;
-    const QColor textColor = QPalette::Foreground;
+    const QColor textColor = QPalette::WindowText;
 
     // Grid boundries in mm
     const double xStart = -ceil(width / stepGrid / mScaleFactor) * stepGrid - ceil(mXOffset / stepGrid / mScaleFactor) * stepGrid;
@@ -1804,7 +1808,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
                 pen.setColor(firstAxisColor);
                 painter.setPen(pen);
             } else {
-                txt.sprintf("%.2f m", i / 1000.0);
+                txt.asprintf("%.2f m", i / 1000.0);
 
                 pt_txt.setX(i);
                 pt_txt.setY(0);
@@ -1846,7 +1850,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
                 pen.setColor(firstAxisColor);
                 painter.setPen(pen);
             } else {
-                txt.sprintf("%.2f m", i / 1000.0);
+                txt.asprintf("%.2f m", i / 1000.0);
                 pt_txt.setY(i);
 
                 pt_txt = drawTrans.map(pt_txt);
@@ -2056,7 +2060,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
             // Draw text only for selected route
             if (mRouteNow == rn && mDrawRouteText) {
                 QTime t = QTime::fromMSecsSinceStartOfDay(routeNow[i].getTime());
-                txt.sprintf("P: %d\n"
+                txt.asprintf("P: %d\n"
                             "%.1f km/h\n"
                             "%02d:%02d:%02d:%03d",
                             i,
@@ -2073,7 +2077,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
                                    pt_txt.x() + 150, pt_txt.y() + 25);
                 painter.drawText(rect_txt, txt);
             } else {
-                txt.sprintf("%d", rn);
+                txt.asprintf("%d", rn);
                 pt_txt.setX(p.x());
                 pt_txt.setY(p.y());
                 painter.setTransform(txtTrans);
@@ -2185,7 +2189,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
         if (!carInfo.getLocationGps().getInfo().isEmpty()) {
             solStr = QString("Sol: %1\n").arg(carInfo.getLocationGps().getInfo());
         }
-        txt.sprintf("%s\n"
+        txt.asprintf("%s\n"
                     "%s"
                     "(%.3f, %.3f, %.0f)\n"
                     "%02d:%02d:%02d:%03d",
@@ -2260,7 +2264,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
 
         // Print data
         QTime t = QTime::fromMSecsSinceStartOfDay(copterInfo.getTime());
-        txt.sprintf("%s\n"
+        txt.asprintf("%s\n"
                     "(%.3f, %.3f, %.0f)\n"
                     "%02d:%02d:%02d:%03d",
                     copterInfo.getName().toLocal8Bit().data(),
@@ -2315,7 +2319,7 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
                                 20, 20, 10, 10);
 
         // Print data
-        txt.sprintf("Anchor %d\n"
+        txt.asprintf("Anchor %d\n"
                     "Pos    : (%.3f, %.3f)\n"
                     "Height : %.2f m",
                     anchor.getId(),
@@ -2360,61 +2364,61 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
     if (mDrawGrid) {
         double res = stepGrid / 1000.0;
         if (res >= 1000.0) {
-            txt.sprintf("Grid res: %.0f km", res / 1000.0);
+            txt.asprintf("Grid res: %.0f km", res / 1000.0);
         } else if (res >= 1.0) {
-            txt.sprintf("Grid res: %.0f m", res);
+            txt.asprintf("Grid res: %.0f m", res);
         } else {
-            txt.sprintf("Grid res: %.0f cm", res * 100.0);
+            txt.asprintf("Grid res: %.0f cm", res * 100.0);
         }
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
     }
 
     // Draw zoom level
-    txt.sprintf("Zoom: %.7f", mScaleFactor);
+    txt.asprintf("Zoom: %.7f", mScaleFactor);
     painter.drawText(int(width - txtOffset), int(start_txt), txt);
     start_txt += txt_row_h;
 
     // Draw OSM zoom level
     if (mDrawOpenStreetmap) {
-        txt.sprintf("OSM zoom: %d", mOsmZoomLevel);
+        txt.asprintf("OSM zoom: %d", mOsmZoomLevel);
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
 
         if (mDrawOsmStats) {
-            txt.sprintf("DL Tiles: %d", mOsm->getTilesDownloaded());
+            txt.asprintf("DL Tiles: %d", mOsm->getTilesDownloaded());
             painter.drawText(int(width - txtOffset), int(start_txt), txt);
             start_txt += txt_row_h;
 
-            txt.sprintf("HDD Tiles: %d", mOsm->getHddTilesLoaded());
+            txt.asprintf("HDD Tiles: %d", mOsm->getHddTilesLoaded());
             painter.drawText(int(width - txtOffset), int(start_txt), txt);
             start_txt += txt_row_h;
 
-            txt.sprintf("RAM Tiles: %d", mOsm->getRamTilesLoaded());
+            txt.asprintf("RAM Tiles: %d", mOsm->getRamTilesLoaded());
             painter.drawText(int(width - txtOffset), int(start_txt), txt);
             start_txt += txt_row_h;
         }
 
-        txt.sprintf("© OpenStreetMap Contributors");
+        txt.asprintf("© OpenStreetMap Contributors");
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
     }
 
     if (mInteractionMode != InteractionModeDefault) {
-        txt.sprintf("IMode: %d", mInteractionMode);
+        txt.asprintf("IMode: %d", mInteractionMode);
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
     }
 
     // Some info
     if (info_segments > 0) {
-        txt.sprintf("Info seg: %d", info_segments);
+        txt.asprintf("Info seg: %d", info_segments);
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
     }
 
     if (info_points > 0) {
-        txt.sprintf("Info pts: %d", info_points);
+        txt.asprintf("Info pts: %d", info_points);
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
     }
@@ -2428,11 +2432,11 @@ void MapWidget::paint(QPainter &painter, int width, int height, bool highQuality
             prev = mRoutes.at(mRouteNow).at(i);
         }
 
-        txt.sprintf("RP: %d", mRoutes.at(mRouteNow).size());
+        txt.asprintf("RP: %ld", mRoutes.at(mRouteNow).size());
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
 
-        txt.sprintf("RLen: %.2f m", len);
+        txt.asprintf("RLen: %.2f m", len);
         painter.drawText(int(width - txtOffset), int(start_txt), txt);
         start_txt += txt_row_h;
     }

@@ -29,18 +29,17 @@ void AspectImgLabel::resizeEvent(QResizeEvent *event)
 {
     QLabel::resizeEvent(event);
 
-    const QPixmap *pix = pixmap();
+    const QPixmap pix = pixmap();
 
-    if (pix) {
-        int wLabel = width();
-        int hLabel = height();
-        int wImg = pix->width();
-        int hImg = pix->height();
+    int wLabel = width();
+    int hLabel = height();
+    int wImg = pix.width();
+    int hImg = pix.height();
 
-        if (mOrientation == Qt::Horizontal) {
-            setMaximumHeight((wLabel * hImg) / wImg);
-        } else if (hLabel != hImg) {
-            setMaximumWidth((hLabel * wImg) / hImg);
-        }
+    if (mOrientation == Qt::Horizontal) {
+        setMaximumHeight((wLabel * hImg) / wImg);
+    } else if (hLabel != hImg) {
+        setMaximumWidth((hLabel * wImg) / hImg);
     }
+
 }

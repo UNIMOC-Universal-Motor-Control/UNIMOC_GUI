@@ -80,7 +80,7 @@ VescInterface::VescInterface(QObject *parent) : QObject(parent)
     mLastConnType = static_cast<conn_t>(mSettings.value("connection_type", CONN_NONE).toInt());
     mLastTcpServer = mSettings.value("tcp_server", "127.0.0.1").toString();
     mLastTcpPort = mSettings.value("tcp_port", 65102).toInt();
-    mLastUdpServer = mSettings.value("udp_server", "127.0.0.1").toString();
+//    mLastUdpServer = mSettings.value("udp_server", "127.0.0.1").toString();
     mLastUdpPort = mSettings.value("udp_port", 65102).toInt();
 
     mSendCanBefore = false;
@@ -377,8 +377,8 @@ VescInterface::VescInterface(QObject *parent) : QObject(parent)
             os << mLastImuValues.gyroZ << ";";
 
             os << msPos << ";";
-            os << fixed << qSetRealNumberPrecision(8) << lat << ";";
-            os << fixed << qSetRealNumberPrecision(8) << lon << ";";
+//            os << fixed << qSetRealNumberPrecision(8) << lat << ";";
+//            os << fixed << qSetRealNumberPrecision(8) << lon << ";";
             os << alt << ";";
             os << gVel << ";";
             os << vVel << ";";
@@ -488,7 +488,7 @@ QStringList VescInterface::getSupportedFirmwares()
 
     for (int i = 0;i < fwPairs.size();i++) {
         QString tmp;
-        tmp.sprintf("%d.%d", fwPairs.at(i).first, fwPairs.at(i).second);
+        tmp.asprintf("%d.%d", fwPairs.at(i).first, fwPairs.at(i).second);
         fws.append(tmp);
     }
     return fws;
@@ -631,7 +631,7 @@ void VescInterface::deleteProfile(int index)
 void VescInterface::moveProfileUp(int index)
 {
     if (index > 0 && index < mProfiles.size()) {
-        mProfiles.swap(index, index - 1);
+        mProfiles[index].swap(mProfiles[index - 1]);
         emit profilesUpdated();
     }
 }
@@ -639,7 +639,7 @@ void VescInterface::moveProfileUp(int index)
 void VescInterface::moveProfileDown(int index)
 {
     if (index >= 0 && index < (mProfiles.size() - 1)) {
-        mProfiles.swap(index, index + 1);
+        mProfiles[index].swap(mProfiles[index + 1]);
         emit profilesUpdated();
     }
 }
@@ -3220,7 +3220,7 @@ void VescInterface::fwVersionReceived(FW_RX_PARAMS params)
         }
 
         QString fwStr;
-        fwStr.sprintf("VESC Firmware Version %d.%d", params.major, params.minor);
+        fwStr.asprintf("VESC Firmware Version %d.%d", params.major, params.minor);
         if (!params.hw.isEmpty()) {
             fwStr += ", Hardware: " + params.hw;
         }
@@ -3233,7 +3233,7 @@ void VescInterface::fwVersionReceived(FW_RX_PARAMS params)
     }
 
     if (params.major >= 0) {
-        mFwTxt.sprintf("Fw: %d.%d", params.major, params.minor);
+        mFwTxt.asprintf("Fw: %d.%d", params.major, params.minor);
         mFwPair = qMakePair(params.major, params.minor);
         mHwTxt = params.hw;
         if (!params.hw.isEmpty()) {
